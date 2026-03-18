@@ -24,9 +24,14 @@ from ingestion import PDFIngestion
 from chunking import TextChunker, EmbeddingGenerator
 from retrieval import VectorStore, RAGSynthesizer
 from visualizer import RAGVisualizer
+from azure_integration import AzureOpenAIIntegration
 
 # Initialize colorama
 init(autoreset=True)
+
+# Check Azure OpenAI configuration on startup
+_azure_client = AzureOpenAIIntegration()
+_azure_configured = _azure_client.is_configured()
 
 
 def print_header(text: str, level: int = 1):
@@ -156,6 +161,7 @@ def demo_4_retrieval(store):
         "Who manages BVM",
         "When was BVM established",
         "What did N. D. Bhatt wrote about?",
+        "Who is the convenor of Techtonic Shift Workshop?",
         "What is the main topic of this document?",
         "key concepts and information",
         "structure and overview",
@@ -288,6 +294,20 @@ def main():
     print(f"  3. {Fore.YELLOW}Retrieval{Fore.WHITE}: Finding relevant context for queries")
     print(f"  4. {Fore.YELLOW}Synthesis{Fore.WHITE}: Generating factual answers\n")
     
+    # Show Azure configuration status
+    print(f"{Fore.CYAN}Azure OpenAI Configuration:")
+    if _azure_configured:
+        config = _azure_client.get_config_info()
+        print(f"  {Fore.GREEN}✓ CONFIGURED - Using real embeddings and LLM synthesis")
+        print(f"    - Endpoint: {config['endpoint']}")
+        print(f"    - Embedding Model: {config['embedding_model']}")
+        print(f"    - Chat Model: {config['chat_model']}")
+        print(f"    - API Version: {config['api_version']}")
+    else:
+        print(f"  {Fore.YELLOW}⚠ NOT CONFIGURED - Using simple embeddings and templates")
+        print(f"    - To enable grounded results, create .env with Azure credentials")
+        print(f"    - See .env.example for configuration instructions\n")
+    
     print(f"{Fore.MAGENTA}Running 6 comprehensive demonstrations...\n")
     
     try:
@@ -319,8 +339,13 @@ def main():
         print(f"{Fore.WHITE}Next steps:")
         print(f"  1. Review PNG charts in: output/")
         print(f"  2. Open interactive embedding visualization: output/embedding_space_interactive.html")
-        print(f"  3. Explore how RAG connects queries to document content\n")
+        print(f"  3. Explore how RAG connects queries to document content")
         
+        if not _azure_configured:
+            print(f"\n{Fore.YELLOW}To get grounded, LLM-generated results:")
+            print(f"  1. Create a .env file with your Azure OpenAI credentials")
+            print(f"  2. Run the demo again: python main_demo.py\n")
+    
     except Exception as e:
         print(f"\n{Fore.RED}✗ Error: {e}")
         import traceback

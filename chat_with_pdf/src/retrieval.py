@@ -7,8 +7,13 @@ from typing import List, Tuple, Dict
 import numpy as np
 try:
     from .chunking import TextChunk, EmbeddingGenerator
+    from .azure_integration import AzureOpenAIIntegration
 except ImportError:
     from chunking import TextChunk, EmbeddingGenerator
+    try:
+        from azure_integration import AzureOpenAIIntegration
+    except ImportError:
+        AzureOpenAIIntegration = None
 
 
 class VectorStore:
@@ -29,15 +34,14 @@ class VectorStore:
         """
         self.chunks.extend(chunks)
         
-        # Generate embeddings for all chunks
+        # Generate embeddings for all chunks using the embedding generator
+        # (which will use Azure if configured)
+        self.embedding_generator.embed_chunks(chunks)
+        
+        # Store embeddings reference
         for chunk in chunks:
-            if chunk.embedding is None:
-                embedding = self.embedding_generator.generate_simple_embedding(
-                    chunk.text,
-                    seed=chunk.id
-                )
-                chunk.embedding = embedding
-                self.embeddings[chunk.id] = embedding
+            if chunk.embedding is not None:
+                self.embeddings[chunk.id] = chunk.embedding
     
     def retrieve(
         self,
@@ -103,16 +107,32 @@ class VectorStore:
 
 
 class RAGSynthesizer:
-    """Generate answers from retrieved context."""
+    """Generate answers from retrieved context using Azure OpenAI or template."""
     
-    @staticmethod
+    def __init__(self):
+        """Initialize synthesizer with Azure OpenAI if available."""
+        self.azure_client = None
+        self.use_azure = False
+        
+        if AzureOpenAIIntegration:
+            try:
+                self.azure_client = AzureOpenAIIntegration()
+                if self.azure_client.is_configured():
+                    self.use_azure = True
+                    print("✓ Using Azure OpenAI for answer synthesis (grounded results)")
+                else:
+                    print("⚠ Azure OpenAI not configured for synthesis, using templates")
+            except Exception as e:
+                print(f"⚠ Azure OpenAI synthesis initialization failed: {e}")
+    
     def synthesize_answer(
+        self,
         query: str,
         retrieved_chunks: List[TextChunk],
         scores: List[float]
     ) -> str:
         """
-        Generate an answer from retrieved chunks.
+        Generate an answer from retrieved chunks using Azure OpenAI LLM.
         
         Args:
             query: Original query
@@ -125,6 +145,51 @@ class RAGSynthesizer:
         if not retrieved_chunks:
             return "I couldn't find relevant information to answer your question."
         
+        # Try Azure LLM synthesis first
+        if self.use_azure and self.azure_client:
+            try:
+                context_texts = [chunk.text for chunk in retrieved_chunks]
+                answer, model_info = self.azure_client.generate_answer(query, context_texts)
+                
+                if answer:
+                    # Format with sources
+                    sources_info = "\n".join([
+                        f"[Source {i+1}, confidence: {score:.2%}] Chunk {chunk.id}"
+                        for i, (chunk, score) in enumerate(zip(retrieved_chunks, scores))
+                    ])
+                    
+                    formatted_answer = (
+                        f"**Question:** {query}\n\n"
+                        f"**LLM-Generated Answer:**\n{answer}\n\n"
+                        f"**Sources:** \n{sources_info}\n"
+                        f"**Model:** {model_info}\n"
+                    )
+                    return formatted_answer
+                else:
+                    print(f"Azure synthesis error: {model_info}")
+            except Exception as e:
+                print(f"Azure synthesis failed: {e}, falling back to template")
+        
+        # Fall back to template-based synthesis
+        return self._synthesize_template(query, retrieved_chunks, scores)
+    
+    def _synthesize_template(
+        self,
+        query: str,
+        retrieved_chunks: List[TextChunk],
+        scores: List[float]
+    ) -> str:
+        """
+        Generate answer using template (fallback when Azure not available).
+        
+        Args:
+            query: Original query
+            retrieved_chunks: List of relevant chunks
+            scores: Similarity scores for chunks
+            
+        Returns:
+            Template-based answer
+        """
         # Build context from top chunks
         context_parts = []
         for i, (chunk, score) in enumerate(zip(retrieved_chunks, scores)):

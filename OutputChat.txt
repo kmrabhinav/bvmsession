@@ -1,0 +1,426 @@
+
+c:\Demo\chat_with_pdf>C:/Demo/.venv/Scripts/python.exe main_demo.py
+✓ Azure configuration loaded from Windows OS environment variables
+⚠ Missing configuration: azure.openai package not installed
+
+======================================================================
+       CHAT WITH YOUR PDF - Retrieval Augmented Generation Demo
+======================================================================
+
+This demo demonstrates the complete RAG pipeline:
+  1. Ingestion: Loading and extracting PDF content
+  2. Chunking & Embedding: Creating vector representations
+  3. Retrieval: Finding relevant context for queries
+  4. Synthesis: Generating factual answers
+
+Azure OpenAI Configuration:
+  ⚠ NOT CONFIGURED - Using simple embeddings and templates
+    - To enable grounded results, create .env with Azure credentials
+    - See .env.example for configuration instructions
+
+Running 6 comprehensive demonstrations...
+
+
+▶ Demo 1: Ingestion - Loading PDF
+
+Step 1: Loading PDF document...
+✓ PDF loaded successfully!
+
+Document Metadata:
+  title: Unknown
+  author: Un-named
+  subject: Unknown
+  pages: 33
+  created: D:20260214061347+05'30'
+
+Text Statistics:
+  Total characters: 44,421
+  Total words: 5,746
+  Total lines: 805
+  Total paragraphs: 33
+  Number of pages: 33
+  Average word length: 6.7 chars
+
+Text Preview (first 300 chars):
+
+[Page 1]
+BIRLA VISHVAKARMA MAHAVIDYALAYA
+Engineering College
+Vallabh Vidyanagar, Anand, Gujarat
+A Comprehensive Overview
+Established 1948
+"Work is Worship"
+
+[Page 2]
+Executive Summary
+Birla Vishvakarma Mahavidyalaya (BVM) Engineering College stands as a testament to
+engineering education excellenc...
+
+▶ Demo 2: Chunking & Embedding - Creating Vector Store
+
+Step 1: Chunking text into overlapping segments...
+✓ Text chunked into 185 chunks!
+
+Chunking Statistics:
+  Total chunks: 185
+  Avg chunk size: 632 characters
+  Min chunk size: 133 characters
+  Max chunk size: 2583 characters
+  Total chunked text: 116,988 characters
+
+Step 2: Generating embeddings for each chunk...
+⚠ Azure OpenAI SDK not available, using simple embeddings
+✓ Generated 185 embeddings!
+
+Embedding Statistics:
+  Embedding dimension: 100 (100-dimensional vectors)
+  Total embeddings: 185
+  Embedding shape: (185, 100)
+  Mean norm: 1.0000
+
+Sample Chunks (first 3):
+  Chunk 0: [Page 1] BIRLA VISHVAKARMA MAHAVIDYALAYA Engineering College Vallabh Vidyanagar,...
+  Chunk 1: [Page 1] BIRLA VISHVAKARMA MAHAVIDYALAYA Engineering College Vallabh Vidyanagar,...
+  Chunk 2: [Page 1] BIRLA VISHVAKARMA MAHAVIDYALAYA Engineering College Vallabh Vidyanagar,...
+
+▶ Demo 3: Vector Store - Efficient Organization
+
+Creating vector store...
+⚠ Azure OpenAI SDK not available, using simple embeddings
+✓ Vector store created!
+
+Vector Store Statistics:
+  Total chunks: 185
+  Total embeddings: 185
+  Embedding dimension: 100
+  Average chunk size: 632 characters
+  Embedding sparsity: 2.41%
+
+The vector store is ready for similarity search!
+
+▶ Demo 4: Retrieval - Finding Relevant Context
+
+Testing retrieval with example queries:
+
+Query: "Who manages BVM"
+✓ Retrieved 3 relevant chunks:
+
+  [1] Chunk 129 - Confidence: 81.5%
+      "This approval ensures that the institution meets  prescribed standards..."
+  [2] Chunk 121 - Confidence: 80.7%
+      "M. A. Patel BVM Library The central library houses over 72,000 books, ..."
+  [3] Chunk 51 - Confidence: 80.3%
+      "Tech) BVM offers 9 undergraduate Bachelor of Technology (B. Tech) prog..."
+
+Query: "When was BVM established"
+✓ Retrieved 3 relevant chunks:
+
+  [1] Chunk 129 - Confidence: 82.2%
+      "This approval ensures that the institution meets  prescribed standards..."
+  [2] Chunk 121 - Confidence: 81.2%
+      "M. A. Patel BVM Library The central library houses over 72,000 books, ..."
+  [3] Chunk 51 - Confidence: 80.9%
+      "Tech) BVM offers 9 undergraduate Bachelor of Technology (B. Tech) prog..."
+
+Query: "What did N. D. Bhatt wrote about?"
+✓ Retrieved 3 relevant chunks:
+
+  [1] Chunk 129 - Confidence: 82.2%
+      "This approval ensures that the institution meets  prescribed standards..."
+  [2] Chunk 121 - Confidence: 80.8%
+      "M. A. Patel BVM Library The central library houses over 72,000 books, ..."
+  [3] Chunk 51 - Confidence: 80.7%
+      "Tech) BVM offers 9 undergraduate Bachelor of Technology (B. Tech) prog..."
+
+Query: "What is the main topic of this document?"
+✓ Retrieved 3 relevant chunks:
+
+  [1] Chunk 129 - Confidence: 82.8%
+      "This approval ensures that the institution meets  prescribed standards..."
+  [2] Chunk 51 - Confidence: 81.2%
+      "Tech) BVM offers 9 undergraduate Bachelor of Technology (B. Tech) prog..."
+  [3] Chunk 121 - Confidence: 81.1%
+      "M. A. Patel BVM Library The central library houses over 72,000 books, ..."
+
+Query: "key concepts and information"
+✓ Retrieved 3 relevant chunks:
+
+  [1] Chunk 129 - Confidence: 82.8%
+      "This approval ensures that the institution meets  prescribed standards..."
+  [2] Chunk 51 - Confidence: 81.5%
+      "Tech) BVM offers 9 undergraduate Bachelor of Technology (B. Tech) prog..."
+  [3] Chunk 121 - Confidence: 81.4%
+      "M. A. Patel BVM Library The central library houses over 72,000 books, ..."
+
+Query: "structure and overview"
+✓ Retrieved 3 relevant chunks:
+
+  [1] Chunk 129 - Confidence: 82.7%
+      "This approval ensures that the institution meets  prescribed standards..."
+  [2] Chunk 121 - Confidence: 81.5%
+      "M. A. Patel BVM Library The central library houses over 72,000 books, ..."
+  [3] Chunk 51 - Confidence: 81.3%
+      "Tech) BVM offers 9 undergraduate Bachelor of Technology (B. Tech) prog..."
+
+
+▶ Demo 5: Synthesis - Generating Factual Answers
+
+Generating answers using retrieved context:
+
+✓ Azure configuration loaded from Windows OS environment variables
+⚠ Missing configuration: azure.openai package not installed
+⚠ Azure OpenAI not configured for synthesis, using templates
+======================================================================
+Query: "Who manages BVM"
+======================================================================
+**Question:** Who manages BVM
+
+**Answer based on the document:**
+
+[Source 1, confidence: 81.50%]
+This approval ensures that the institution meets
+prescribed standards for infrastructure, faculty qualifications, and academic delivery. Regular inspections and compliance reports maintain this accreditation. Autonomous Status
+Granted autonomous status by UGC in August 2015, BVM became Gujarat's first
+autonomous engineering institute.
+
+[Source 2, confidence: 80.69%]
+M. A. Patel BVM Library
+The central library houses over 72,000 books, 250 journals and periodicals, and
+extensive digital resources.
+
+[Source 3, confidence: 80.34%]
+Tech)
+BVM offers 9 undergraduate Bachelor of Technology (B. Tech) programs across core
+and emerging engineering disciplines. These four-year programs are designed to
+provide a strong foundation in engineering fundamentals combined with specialized
+knowledge and practical skills.
+
+**Synthesis:** Based on the retrieved sections above, this information directly addresses the query with 82% relevance confidence.
+
+
+Sources Used:
+  [1] Page 1, Chunk 129 (Confidence: 81.5%)
+  [2] Page 1, Chunk 121 (Confidence: 80.7%)
+  [3] Page 1, Chunk 51 (Confidence: 80.3%)
+======================================================================
+Query: "When was BVM established"
+======================================================================
+**Question:** When was BVM established
+
+**Answer based on the document:**
+
+[Source 1, confidence: 82.15%]
+This approval ensures that the institution meets
+prescribed standards for infrastructure, faculty qualifications, and academic delivery. Regular inspections and compliance reports maintain this accreditation. Autonomous Status
+Granted autonomous status by UGC in August 2015, BVM became Gujarat's first
+autonomous engineering institute.
+
+[Source 2, confidence: 81.22%]
+M. A. Patel BVM Library
+The central library houses over 72,000 books, 250 journals and periodicals, and
+extensive digital resources.
+
+[Source 3, confidence: 80.91%]
+Tech)
+BVM offers 9 undergraduate Bachelor of Technology (B. Tech) programs across core
+and emerging engineering disciplines. These four-year programs are designed to
+provide a strong foundation in engineering fundamentals combined with specialized
+knowledge and practical skills.
+
+**Synthesis:** Based on the retrieved sections above, this information directly addresses the query with 82% relevance confidence.
+
+
+Sources Used:
+  [1] Page 1, Chunk 129 (Confidence: 82.2%)
+  [2] Page 1, Chunk 121 (Confidence: 81.2%)
+  [3] Page 1, Chunk 51 (Confidence: 80.9%)
+======================================================================
+Query: "What did N. D. Bhatt wrote about?"
+======================================================================
+**Question:** What did N. D. Bhatt wrote about?
+
+**Answer based on the document:**
+
+[Source 1, confidence: 82.23%]
+This approval ensures that the institution meets
+prescribed standards for infrastructure, faculty qualifications, and academic delivery. Regular inspections and compliance reports maintain this accreditation. Autonomous Status
+Granted autonomous status by UGC in August 2015, BVM became Gujarat's first
+autonomous engineering institute.
+
+[Source 2, confidence: 80.84%]
+M. A. Patel BVM Library
+The central library houses over 72,000 books, 250 journals and periodicals, and
+extensive digital resources.
+
+[Source 3, confidence: 80.68%]
+Tech)
+BVM offers 9 undergraduate Bachelor of Technology (B. Tech) programs across core
+and emerging engineering disciplines. These four-year programs are designed to
+provide a strong foundation in engineering fundamentals combined with specialized
+knowledge and practical skills.
+
+**Synthesis:** Based on the retrieved sections above, this information directly addresses the query with 82% relevance confidence.
+
+
+Sources Used:
+  [1] Page 1, Chunk 129 (Confidence: 82.2%)
+  [2] Page 1, Chunk 121 (Confidence: 80.8%)
+  [3] Page 1, Chunk 51 (Confidence: 80.7%)
+======================================================================
+Query: "What is the main topic of this document?"
+======================================================================
+**Question:** What is the main topic of this document?
+
+**Answer based on the document:**
+
+[Source 1, confidence: 82.77%]
+This approval ensures that the institution meets
+prescribed standards for infrastructure, faculty qualifications, and academic delivery. Regular inspections and compliance reports maintain this accreditation. Autonomous Status
+Granted autonomous status by UGC in August 2015, BVM became Gujarat's first
+autonomous engineering institute.
+
+[Source 2, confidence: 81.21%]
+Tech)
+BVM offers 9 undergraduate Bachelor of Technology (B. Tech) programs across core
+and emerging engineering disciplines. These four-year programs are designed to
+provide a strong foundation in engineering fundamentals combined with specialized
+knowledge and practical skills.
+
+[Source 3, confidence: 81.13%]
+M. A. Patel BVM Library
+The central library houses over 72,000 books, 250 journals and periodicals, and
+extensive digital resources.
+
+**Synthesis:** Based on the retrieved sections above, this information directly addresses the query with 83% relevance confidence.
+
+
+Sources Used:
+  [1] Page 1, Chunk 129 (Confidence: 82.8%)
+  [2] Page 1, Chunk 51 (Confidence: 81.2%)
+  [3] Page 1, Chunk 121 (Confidence: 81.1%)
+======================================================================
+Query: "key concepts and information"
+======================================================================
+**Question:** key concepts and information
+
+**Answer based on the document:**
+
+[Source 1, confidence: 82.79%]
+This approval ensures that the institution meets
+prescribed standards for infrastructure, faculty qualifications, and academic delivery. Regular inspections and compliance reports maintain this accreditation. Autonomous Status
+Granted autonomous status by UGC in August 2015, BVM became Gujarat's first
+autonomous engineering institute.
+
+[Source 2, confidence: 81.48%]
+Tech)
+BVM offers 9 undergraduate Bachelor of Technology (B. Tech) programs across core
+and emerging engineering disciplines. These four-year programs are designed to
+provide a strong foundation in engineering fundamentals combined with specialized
+knowledge and practical skills.
+
+[Source 3, confidence: 81.41%]
+M. A. Patel BVM Library
+The central library houses over 72,000 books, 250 journals and periodicals, and
+extensive digital resources.
+
+**Synthesis:** Based on the retrieved sections above, this information directly addresses the query with 83% relevance confidence.
+
+
+Sources Used:
+  [1] Page 1, Chunk 129 (Confidence: 82.8%)
+  [2] Page 1, Chunk 51 (Confidence: 81.5%)
+  [3] Page 1, Chunk 121 (Confidence: 81.4%)
+======================================================================
+Query: "structure and overview"
+======================================================================
+**Question:** structure and overview
+
+**Answer based on the document:**
+
+[Source 1, confidence: 82.67%]
+This approval ensures that the institution meets
+prescribed standards for infrastructure, faculty qualifications, and academic delivery. Regular inspections and compliance reports maintain this accreditation. Autonomous Status
+Granted autonomous status by UGC in August 2015, BVM became Gujarat's first
+autonomous engineering institute.
+
+[Source 2, confidence: 81.52%]
+M. A. Patel BVM Library
+The central library houses over 72,000 books, 250 journals and periodicals, and
+extensive digital resources.
+
+[Source 3, confidence: 81.30%]
+Tech)
+BVM offers 9 undergraduate Bachelor of Technology (B. Tech) programs across core
+and emerging engineering disciplines. These four-year programs are designed to
+provide a strong foundation in engineering fundamentals combined with specialized
+knowledge and practical skills.
+
+**Synthesis:** Based on the retrieved sections above, this information directly addresses the query with 83% relevance confidence.
+
+
+Sources Used:
+  [1] Page 1, Chunk 129 (Confidence: 82.7%)
+  [2] Page 1, Chunk 121 (Confidence: 81.5%)
+  [3] Page 1, Chunk 51 (Confidence: 81.3%)
+
+▶ Demo 6: Visualizations - Interactive Charts & Plots
+
+Generating visualizations...
+
+Creating RAG pipeline overview...
+c:\Demo\chat_with_pdf\src\visualizer.py:73: UserWarning: Glyph 128196 (\N{PAGE FACING UP}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+c:\Demo\chat_with_pdf\src\visualizer.py:73: UserWarning: Glyph 128269 (\N{LEFT-POINTING MAGNIFYING GLASS}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+c:\Demo\chat_with_pdf\src\visualizer.py:73: UserWarning: Glyph 128221 (\N{MEMO}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+c:\Demo\chat_with_pdf\src\visualizer.py:76: UserWarning: Glyph 128196 (\N{PAGE FACING UP}) missing from font(s) DejaVu Sans.
+  plt.savefig(save_path, dpi=300, bbox_inches='tight')
+c:\Demo\chat_with_pdf\src\visualizer.py:76: UserWarning: Glyph 128269 (\N{LEFT-POINTING MAGNIFYING GLASS}) missing from font(s) DejaVu Sans.
+  plt.savefig(save_path, dpi=300, bbox_inches='tight')
+c:\Demo\chat_with_pdf\src\visualizer.py:76: UserWarning: Glyph 128221 (\N{MEMO}) missing from font(s) DejaVu Sans.
+  plt.savefig(save_path, dpi=300, bbox_inches='tight')
+Pipeline overview saved to c:\Demo\chat_with_pdf\output\rag_pipeline_overview.png
+✓ Saved: rag_pipeline_overview.png
+Creating chunking visualization...
+Chunking visualization saved to c:\Demo\chat_with_pdf\output\chunking_visualization.png
+✓ Saved: chunking_visualization.png
+Creating RAG statistics...
+Statistics visualization saved to c:\Demo\chat_with_pdf\output\rag_statistics.png
+✓ Saved: rag_statistics.png
+Creating interactive embedding space visualization...
+Interactive embedding space saved to c:\Demo\chat_with_pdf\output\embedding_space_interactive.html
+✓ Saved: embedding_space_interactive.html
+  → Open in browser to explore the vector space interactively!
+Creating retrieval process visualization...
+Retrieval process visualization saved to c:\Demo\chat_with_pdf\output\retrieval_process_1.png
+✓ Saved: retrieval_process_1.png
+Retrieval process visualization saved to c:\Demo\chat_with_pdf\output\retrieval_process_2.png
+✓ Saved: retrieval_process_2.png
+Retrieval process visualization saved to c:\Demo\chat_with_pdf\output\retrieval_process_3.png
+✓ Saved: retrieval_process_3.png
+Retrieval process visualization saved to c:\Demo\chat_with_pdf\output\retrieval_process_4.png
+✓ Saved: retrieval_process_4.png
+Retrieval process visualization saved to c:\Demo\chat_with_pdf\output\retrieval_process_5.png
+✓ Saved: retrieval_process_5.png
+Retrieval process visualization saved to c:\Demo\chat_with_pdf\output\retrieval_process_6.png
+✓ Saved: retrieval_process_6.png
+
+Output directory: c:\Demo\chat_with_pdf\output
+
+======================================================================
+                       Demonstrations Complete!
+======================================================================
+
+✓ All demos executed successfully!
+Next steps:
+  1. Review PNG charts in: output/
+  2. Open interactive embedding visualization: output/embedding_space_interactive.html
+  3. Explore how RAG connects queries to document content
+
+To get grounded, LLM-generated results:
+  1. Create a .env file with your Azure OpenAI credentials
+  2. Run the demo again: python main_demo.py
+
+
+c:\Demo\chat_with_pdf>

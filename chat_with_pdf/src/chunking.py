@@ -7,6 +7,12 @@ from typing import List, Dict, Tuple
 import numpy as np
 from dataclasses import dataclass
 
+try:
+    from azure_integration import AzureOpenAIIntegration
+    AZURE_AVAILABLE = True
+except ImportError:
+    AZURE_AVAILABLE = False
+
 
 @dataclass
 class TextChunk:
@@ -132,17 +138,62 @@ class TextChunker:
 
 
 class EmbeddingGenerator:
-    """Generate embeddings for text chunks."""
+    """Generate embeddings for text chunks using Azure OpenAI or simple fallback."""
     
     def __init__(self, embedding_dim: int = 100):
+        print("A01")
         """
         Initialize embedding generator.
         
         Args:
-            embedding_dim: Dimension of embeddings (100 for demo, typically 768+ for production)
+            embedding_dim: Dimension of embeddings (100 for demo, typically 1536 for Azure)
         """
         self.embedding_dim = embedding_dim
         self.embeddings = {}
+        
+        # Try to use Azure OpenAI
+        self.use_azure = False
+        self.azure_client = None
+        
+        if AZURE_AVAILABLE:
+            try:
+                print("AA")
+                self.azure_client = AzureOpenAIIntegration()
+                if self.azure_client.is_configured():
+                    self.use_azure = True
+                    print("KKK✓ Using Azure OpenAI for embeddings (grounded results)")
+                else:
+                    print("LLL⚠ Azure OpenAI not configured, falling back to simple embeddings")
+            except Exception as e:
+                print(f"DDD ⚠ Azure1 OpenAI initialization failed: {e}, using simple embeddings")
+        else:
+            print("MMM⚠ Azure OpenAI SDK not available, using simple embeddings")
+    
+    def _reduce_embedding_dim(self, embedding: np.ndarray, target_dim: int = 100) -> np.ndarray:
+        """
+        Reduce embedding dimension using simple averaging if needed.
+        
+        Args:
+            embedding: Original embedding
+            target_dim: Target dimension
+            
+        Returns:
+            Reduced embedding
+        """
+        if len(embedding) <= target_dim:
+            # Pad with small random values if needed
+            if len(embedding) < target_dim:
+                padding = np.random.randn(target_dim - len(embedding)) * 0.01
+                embedding = np.concatenate([embedding, padding])
+            return embedding
+        
+        # Use simple averaging to reduce dimension
+        step = len(embedding) / target_dim
+        reduced = np.array([
+            np.mean(embedding[int(i * step):int((i + 1) * step)])
+            for i in range(target_dim)
+        ])
+        return reduced
     
     def generate_simple_embedding(self, text: str, seed: int = None) -> np.ndarray:
         """
@@ -202,6 +253,31 @@ class EmbeddingGenerator:
         
         return embedding
     
+    def _get_azure_embedding(self, text: str) -> np.ndarray:
+        """
+        Get embedding from Azure OpenAI.
+        
+        Args:
+            text: Text to embed
+            
+        Returns:
+            Embedding vector or None if failed
+        """
+        try:
+            embedding = self.azure_client.get_embedding(text)
+            if embedding is not None:
+                # Reduce dimension if needed
+                embedding = self._reduce_embedding_dim(embedding, self.embedding_dim)
+                # Normalize
+                norm = np.linalg.norm(embedding)
+                if norm > 0:
+                    embedding = embedding / norm
+                return embedding
+        except Exception as e:
+            print(f"Azure embedding failed: {e}, falling back")
+        
+        return None
+    
     def embed_chunks(self, chunks: List[TextChunk]) -> Dict[int, np.ndarray]:
         """
         Generate embeddings for all chunks.
@@ -214,6 +290,28 @@ class EmbeddingGenerator:
         """
         embeddings = {}
         
+        # Try batch embedding with Azure if available
+        if self.use_azure and len(chunks) > 0:
+            chunk_texts = [chunk.text for chunk in chunks]
+            try:
+                azure_embeddings = self.azure_client.get_embeddings_batch(chunk_texts)
+                if azure_embeddings:
+                    for i, chunk in enumerate(chunks):
+                        embedding = azure_embeddings[i]
+                        embedding = self._reduce_embedding_dim(embedding, self.embedding_dim)
+                        # Normalize
+                        norm = np.linalg.norm(embedding)
+                        if norm > 0:
+                            embedding = embedding / norm
+                        chunk.embedding = embedding
+                        embeddings[chunk.id] = embedding
+                    
+                    self.embeddings = embeddings
+                    return embeddings
+            except Exception as e:
+                print(f"Batch Azure embedding failed: {e}, falling back to simple")
+        
+        # Fall back to simple embeddings
         for i, chunk in enumerate(chunks):
             # Use chunk id as seed for reproducibility
             embedding = self.generate_simple_embedding(chunk.text, seed=chunk.id)
@@ -253,7 +351,13 @@ class EmbeddingGenerator:
         Returns:
             Query embedding vector
         """
-        # Use large seed to differentiate query embeddings
+        # Try Azure first
+        if self.use_azure:
+            embedding = self._get_azure_embedding(query)
+            if embedding is not None:
+                return embedding
+        
+        # Fall back to simple embedding for query
         embedding = self.generate_simple_embedding(query, seed=999999)
         return embedding
     
